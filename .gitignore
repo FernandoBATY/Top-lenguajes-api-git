@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js build output
+.next/
+out/
+
+# Env files (keep .env.example, ignore actual env files)
+.env
+.env.local
+.env.*.local
+
+# Misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# Logs
+npm-debug.log*
+
+# Vercel
+.vercel
