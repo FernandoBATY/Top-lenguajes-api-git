@@ -1,190 +1,270 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 
 export default function Home() {
   const [username, setUsername] = useState("");
   const [theme, setTheme] = useState("dark");
-  const [maxLangs, setMaxLangs] = useState(10);
   const [preview, setPreview] = useState(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   const apiUrl = username
-    ? `/api/top-langs-icons?username=${username}&theme=${theme}&max_langs=${maxLangs}`
+    ? `/api/top-langs-icons?username=${username}&theme=${theme}`
     : null;
 
   const absoluteUrl = username
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/api/top-langs-icons?username=${username}&theme=${theme}&max_langs=${maxLangs}`
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/api/top-langs-icons?username=${username}&theme=${theme}`
     : null;
+
+  const markdownCode = `![Top Languages](${absoluteUrl})`;
+
+  // Auto-update preview when parameters change
+  useEffect(() => {
+    if (preview && username.trim()) {
+      setPreview(apiUrl);
+    }
+  }, [theme, apiUrl, preview, username]);
+
+  const copyToClipboard = () => {
+    if (absoluteUrl) {
+      navigator.clipboard.writeText(markdownCode);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (username.trim()) {
+      setPreview(apiUrl);
+      
+      // Check if response indicates demo mode
+      try {
+        const response = await fetch(apiUrl);
+        const isDemoResponse = response.headers.get('X-Demo-Mode') === 'true';
+        setIsDemoMode(isDemoResponse);
+      } catch (err) {
+        console.log('Could not check demo mode:', err);
+      }
+    }
+  };
 
   return (
     <>
       <Head>
-        <title>Top Langs Icons</title>
-        <meta name="description" content="GitHub top languages SVG card" />
+        <meta name="description" content="Genera tarjetas minimalistas de lenguajes de GitHub" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              tailwind.config = {
+                darkMode: "class",
+                theme: {
+                  extend: {
+                    colors: {
+                      "primary": "#57abff",
+                      "background-light": "#f5f7f8", 
+                      "background-dark": "#0f1923",
+                    },
+                    fontFamily: {
+                      "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                  },
+                },
+              }
+            `,
+          }}
+        />
+        <style jsx global>{`
+          body {
+            font-family: 'Inter', sans-serif;
+          }
+          /* Custom range slider styling to match theme */
+          input[type='range'] {
+            -webkit-appearance: none;
+            background: transparent;
+          }
+          input[type='range']::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #2e4d6b;
+            border-radius: 2px;
+          }
+          input[type='range']::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #57abff;
+            cursor: pointer;
+            margin-top: -6px;
+          }
+        `}</style>
       </Head>
-      <main style={styles.main}>
-        <h1 style={styles.h1}>🗂️ Top Languages Icons</h1>
-        <p style={styles.sub}>
-          Genera una tarjeta SVG con los lenguajes más usados de cualquier usuario de GitHub.
-        </p>
+      <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-xl space-y-12">
+          {/* Header: Minimalist Title */}
+          <header className="text-center space-y-2">
+            <h1 className="text-2xl font-light tracking-tight text-slate-900 dark:text-white">
+              Generador <span className="text-primary font-medium">Api</span>
+            </h1>
+          </header>
 
-        <div style={styles.form}>
-          <label style={styles.label}>GitHub Username</label>
-          <input
-            style={styles.input}
-            type="text"
-            placeholder="ej. torvalds"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          {/* Main Interface */}
+          <main className="space-y-10">
+            {/* Preview Area */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-xs aspect-[400/456] bg-slate-200/50 dark:bg-primary/5 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center relative group overflow-hidden">
+                {preview ? (
+                  <img src={preview} alt="Tarjeta de Lenguajes Top" className="max-w-full max-h-full object-contain rounded-lg" />
+                ) : (
+                  <>
+                    {/* Placeholder representing the single column card */}
+                    <div className="p-6 w-full max-w-xs bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm">
+                      <div className="flex items-center justify-center mb-6">
+                        <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                      </div>
+                      <div className="space-y-3">
+                        {/* Simulate 10 languages in single column */}
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-90"></div>
+                          <div className="h-1.5 w-20 bg-primary rounded-full opacity-90"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-80"></div>
+                          <div className="h-1.5 w-16 bg-primary rounded-full opacity-80"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-70"></div>
+                          <div className="h-1.5 w-14 bg-primary rounded-full opacity-70"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-60"></div>
+                          <div className="h-1.5 w-12 bg-primary rounded-full opacity-60"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-50"></div>
+                          <div className="h-1.5 w-10 bg-primary rounded-full opacity-50"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-40"></div>
+                          <div className="h-1.5 w-8 bg-primary rounded-full opacity-40"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-35"></div>
+                          <div className="h-1.5 w-7 bg-primary rounded-full opacity-35"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-30"></div>
+                          <div className="h-1.5 w-6 bg-primary rounded-full opacity-30"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-25"></div>
+                          <div className="h-1.5 w-5 bg-primary rounded-full opacity-25"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 bg-primary rounded-sm opacity-20"></div>
+                          <div className="h-1.5 w-4 bg-primary rounded-full opacity-20"></div>
+                          <div className="h-1.5 w-6 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+              </div>
+            </div>
 
-          <label style={styles.label}>Tema</label>
-          <select
-            style={styles.input}
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-          >
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
+            {/* Controls */}
+            <div className="grid grid-cols-1 gap-8 max-w-sm mx-auto">
+              
+              {/* Username Input */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Usuario de GitHub</label>
+                <input 
+                  className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary border-t-0 border-x-0 p-2 text-lg outline-none transition-colors placeholder:text-slate-300 dark:placeholder:text-slate-600" 
+                  placeholder="ej. octocat" 
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleGenerate()}
+                />
+              </div>
 
-          <label style={styles.label}>Máx. lenguajes ({maxLangs})</label>
-          <input
-            style={styles.input}
-            type="range"
-            min={3}
-            max={20}
-            value={maxLangs}
-            onChange={(e) => setMaxLangs(Number(e.target.value))}
-          />
+              {/* Theme Selection */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tema</label>
+                <select 
+                  className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary border-t-0 border-x-0 p-2 text-sm outline-none transition-colors appearance-none cursor-pointer"
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value)}
+                >
+                  <option className="bg-background-dark" value="dark">Oscuro Minimalista</option>
+                  <option className="bg-background-dark" value="light">Claro Minimalista</option>
+                </select>
+              </div>
+            </div>
 
-          <button
-            style={styles.btn}
-            disabled={!username}
-            onClick={() => setPreview(apiUrl)}
-          >
-            Generar
-          </button>
+            {/* Actions */}
+            <div className="flex flex-col items-center gap-4 pt-6">
+              {!preview ? (
+                <button 
+                  className="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-medium rounded-full transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!username.trim()}
+                  onClick={handleGenerate}
+                >
+                  Generar
+                </button>
+              ) : (
+                <button 
+                  className="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-medium rounded-full transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
+                  onClick={copyToClipboard}
+                >
+                  Copiar 
+                </button>
+              )}
+              
+              {absoluteUrl && (
+                <>
+                  <button 
+                    className="text-xs text-slate-500 dark:text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
+                    onClick={() => navigator.clipboard.writeText(absoluteUrl)}
+                  >
+                  </button>
+                  
+                  {/* Preview Section */}
+                  <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 max-w-md">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Vista Previa</div>
+                    <code className="text-xs text-slate-600 dark:text-slate-300 break-all">
+                      {markdownCode}
+                    </code>
+                  </div>
+                </>
+              )}
+            </div>
+          </main>
+
+          {/* Minimal Footer */}
+          <footer className="pt-12 text-center">
+            <div className="inline-flex items-center gap-6 text-slate-400 dark:text-slate-600">
+              <a className="hover:text-primary transition-colors" href="https://github.com/your-username/top-langs-icons">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+                </svg>
+              </a>
+            </div>
+          </footer>
         </div>
-
-        {preview && (
-          <>
-            <h2 style={styles.h2}>Vista previa</h2>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt="Top Languages Card" style={styles.card} />
-
-            <h2 style={styles.h2}>Úsalo en tu README</h2>
-            <pre style={styles.code}>
-              {`![Top Languages](${absoluteUrl})`}
-            </pre>
-          </>
-        )}
-
-        <hr style={styles.hr} />
-
-        <h2 style={styles.h2}>API Reference</h2>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Param</th>
-              <th style={styles.th}>Default</th>
-              <th style={styles.th}>Descripción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["username", "—", "Nombre de usuario de GitHub (requerido)"],
-              ["theme", "dark", "Tema de la tarjeta: dark | light"],
-              ["max_langs", "10", "Máximo de lenguajes a mostrar (1-20)"],
-              ["title", "username's Top Languages", "Título personalizado de la tarjeta"],
-            ].map(([p, d, desc]) => (
-              <tr key={p}>
-                <td style={styles.td}><code>{p}</code></td>
-                <td style={styles.td}>{d}</td>
-                <td style={styles.td}>{desc}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </main>
+      </div>
     </>
   );
 }
-
-const styles = {
-  main: {
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-    maxWidth: 720,
-    margin: "0 auto",
-    padding: "40px 20px",
-    color: "#e6edf3",
-    background: "#0d1117",
-    minHeight: "100vh",
-  },
-  h1: { fontSize: 32, margin: "0 0 8px" },
-  h2: { fontSize: 20, margin: "32px 0 12px", color: "#58a6ff" },
-  sub: { color: "#8b949e", marginBottom: 32 },
-  form: {
-    background: "#161b22",
-    border: "1px solid #30363d",
-    borderRadius: 10,
-    padding: 24,
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-    marginBottom: 32,
-  },
-  label: { fontSize: 13, color: "#8b949e" },
-  input: {
-    background: "#0d1117",
-    border: "1px solid #30363d",
-    borderRadius: 6,
-    padding: "8px 12px",
-    color: "#e6edf3",
-    fontSize: 15,
-    outline: "none",
-  },
-  btn: {
-    background: "#238636",
-    color: "#fff",
-    border: "none",
-    borderRadius: 6,
-    padding: "10px 20px",
-    cursor: "pointer",
-    fontSize: 15,
-    fontWeight: 600,
-    marginTop: 4,
-  },
-  card: {
-    maxWidth: "100%",
-    borderRadius: 10,
-    display: "block",
-    margin: "0 auto 24px",
-    border: "1px solid #30363d",
-  },
-  code: {
-    background: "#161b22",
-    border: "1px solid #30363d",
-    borderRadius: 6,
-    padding: 16,
-    overflowX: "auto",
-    fontSize: 13,
-    color: "#a5d6ff",
-    whiteSpace: "pre-wrap",
-    wordBreak: "break-all",
-  },
-  hr: { border: "none", borderTop: "1px solid #30363d", margin: "32px 0" },
-  table: { width: "100%", borderCollapse: "collapse" },
-  th: {
-    textAlign: "left",
-    padding: "8px 12px",
-    background: "#161b22",
-    borderBottom: "1px solid #30363d",
-    fontSize: 13,
-    color: "#8b949e",
-  },
-  td: {
-    padding: "8px 12px",
-    borderBottom: "1px solid #21262d",
-    fontSize: 13,
-  },
-};

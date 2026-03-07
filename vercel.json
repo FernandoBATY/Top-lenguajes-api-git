@@ -1,0 +1,18 @@
+{
+  "functions": {
+    "pages/api/top-langs-icons.js": {
+      "maxDuration": 30
+    }
+  },
+  "github": {
+    "autoAssignPullRequests": false,
+    "autoJobCancelation": true
+  },
+  "redirects": [
+    {
+      "source": "/api/top-languages",
+      "destination": "/api/top-langs-icons",
+      "statusCode": 301
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 const { fetchTopLanguages } = require("../../lib/fetchGitHub");
 const { generateSVG } = require("../../lib/generateSVG");
+const { getMockData } = require("../../lib/mockData");
 
 // Cache headers: revalidate every 4 hours
 const CACHE_SECONDS = 4 * 60 * 60;
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Invalid GitHub username format." });
   }
 
-  const maxLangs = Math.min(Math.max(parseInt(max_langs) || 10, 1), 20);
+  const maxLangs = 10; // Forzar siempre a 10 lenguajes exactos
   const safeTheme = theme === "light" ? "light" : "dark";
   const cardTitle = title || `${cleanUsername}'s Top Languages`;
 
@@ -40,7 +41,7 @@ export default async function handler(req, res) {
     }
 
     // ── Generate SVG ──────────────────────────────────────────────────────
-    const svg = generateSVG(langs, {
+    const svg = await generateSVG(langs, {
       maxLangs,
       theme: safeTheme,
       title: cardTitle,
@@ -54,11 +55,22 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error("[top-langs-icons] Error:", err.message);
 
-    // GitHub rate limit
-    if (err.message.includes("403") || err.message.toLowerCase().includes("rate limit")) {
-      return res.status(429).json({
-        error: "GitHub API rate limit exceeded. Set GITHUB_TOKEN env var to increase limits.",
+    // GitHub rate limit - use mock data as fallback
+    if (err.message.includes("403") || err.message.includes("429") || err.message.toLowerCase().includes("rate limit")) {
+      console.log(`[top-langs-icons] Rate limit hit, using mock data for ${cleanUsername}`);
+      
+      const mockLangs = getMockData(cleanUsername);
+      const svg = await generateSVG(mockLangs, {
+        maxLangs,
+        theme: safeTheme,
+        title: `${cardTitle} (Demo)`,
       });
+
+      res.setHeader("Content-Type", "image/svg+xml");
+      res.setHeader("Cache-Control", "public, max-age=300, s-maxage=300"); // Shorter cache for demo
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("X-Demo-Mode", "true"); // Indicate this is demo data
+      return res.status(200).send(svg);
     }
 
     // User not found
