@@ -17,7 +17,6 @@ export default function Home() {
 
   const markdownCode = `![Top Languages](${absoluteUrl})`;
 
-  // Auto-update preview when parameters change
   useEffect(() => {
     if (preview && username.trim()) {
       setPreview(apiUrl);
@@ -34,7 +33,6 @@ export default function Home() {
     if (username.trim()) {
       setPreview(apiUrl);
       
-      // Check if response indicates demo mode
       try {
         const response = await fetch(apiUrl);
         const isDemoResponse = response.headers.get('X-Demo-Mode') === 'true';
@@ -101,31 +99,28 @@ export default function Home() {
           }
         `}</style>
       </Head>
-      <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center p-6">
+      <div className="bg-background-light dark:bg-background-dark text-black min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-xl space-y-12">
-          {/* Header: Minimalist Title */}
+        
           <header className="text-center space-y-2">
-            <h1 className="text-2xl font-light tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-light tracking-tight text-black">
               Generador <span className="text-primary font-medium">Api</span>
             </h1>
           </header>
 
-          {/* Main Interface */}
           <main className="space-y-10">
-            {/* Preview Area */}
+
             <div className="flex justify-center">
               <div className="w-full max-w-xs aspect-[400/456] bg-slate-200/50 dark:bg-primary/5 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center relative group overflow-hidden">
                 {preview ? (
                   <img src={preview} alt="Tarjeta de Lenguajes Top" className="max-w-full max-h-full object-contain rounded-lg" />
                 ) : (
                   <>
-                    {/* Placeholder representing the single column card */}
                     <div className="p-6 w-full max-w-xs bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm">
                       <div className="flex items-center justify-center mb-6">
                         <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
                       </div>
                       <div className="space-y-3">
-                        {/* Simulate 10 languages in single column */}
                         <div className="flex items-center gap-2">
                           <div className="h-3 w-3 bg-primary rounded-sm opacity-90"></div>
                           <div className="h-1.5 w-20 bg-primary rounded-full opacity-90"></div>
@@ -184,15 +179,13 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Controls */}
             <div className="grid grid-cols-1 gap-8 max-w-sm mx-auto">
               
-              {/* Username Input */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Usuario de GitHub</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-black">Usuario de GitHub</label>
                 <input 
-                  className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary border-t-0 border-x-0 p-2 text-lg outline-none transition-colors placeholder:text-slate-300 dark:placeholder:text-slate-600" 
-                  placeholder="ej. octocat" 
+                  className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary border-t-0 border-x-0 p-2 text-lg text-black outline-none transition-colors placeholder:text-slate-400" 
+                  placeholder="ej. FernandoBATY" 
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -200,21 +193,19 @@ export default function Home() {
                 />
               </div>
 
-              {/* Theme Selection */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tema</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-black">Tema</label>
                 <select 
-                  className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary border-t-0 border-x-0 p-2 text-sm outline-none transition-colors appearance-none cursor-pointer"
+                  className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary border-t-0 border-x-0 p-2 text-sm text-black outline-none transition-colors appearance-none cursor-pointer"
                   value={theme}
                   onChange={(e) => setTheme(e.target.value)}
                 >
-                  <option className="bg-background-dark" value="dark">Oscuro Minimalista</option>
-                  <option className="bg-background-dark" value="light">Claro Minimalista</option>
+                  <option className="bg-white text-black" value="dark">Oscuro Minimalista</option>
+                  <option className="bg-white text-black" value="light">Claro Minimalista</option>
                 </select>
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col items-center gap-4 pt-6">
               {!preview ? (
                 <button 
@@ -236,15 +227,14 @@ export default function Home() {
               {absoluteUrl && (
                 <>
                   <button 
-                    className="text-xs text-slate-500 dark:text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
+                    className="text-xs text-black hover:text-primary transition-colors flex items-center gap-1"
                     onClick={() => navigator.clipboard.writeText(absoluteUrl)}
                   >
                   </button>
                   
-                  {/* Preview Section */}
                   <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 max-w-md">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Vista Previa</div>
-                    <code className="text-xs text-slate-600 dark:text-slate-300 break-all">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-black mb-2">Vista Previa</div>
+                    <code className="text-xs text-black break-all">
                       {markdownCode}
                     </code>
                   </div>
@@ -253,7 +243,6 @@ export default function Home() {
             </div>
           </main>
 
-          {/* Minimal Footer */}
           <footer className="pt-12 text-center">
             <div className="inline-flex items-center gap-6 text-slate-400 dark:text-slate-600">
               <a className="hover:text-primary transition-colors" href="https://github.com/your-username/top-langs-icons">
