@@ -16,12 +16,10 @@ export default function Home() {
     ? `${typeof window !== "undefined" ? window.location.origin : ""}/api/top-langs-icons?username=${username}&theme=${theme}`
     : null;
 
-  const markdownCode = `![Top Languages](${absoluteUrl})`;
+  const markdownCode = absoluteUrl;
 
-  // Solo actualizar cuando el usuario hace clic en generar
   useEffect(() => {
     if (preview && lastGeneratedUser && theme) {
-      // Solo actualizar el tema si ya hay una vista previa generada
       const updatedUrl = `/api/top-langs-icons?username=${lastGeneratedUser}&theme=${theme}`;
       setPreview(updatedUrl);
     }
@@ -29,7 +27,7 @@ export default function Home() {
 
   const copyToClipboard = () => {
     if (absoluteUrl) {
-      navigator.clipboard.writeText(markdownCode);
+      navigator.clipboard.writeText(absoluteUrl);
     }
   };
 
@@ -51,13 +49,10 @@ export default function Home() {
   const handleUsernameChange = (e) => {
     const newUsername = e.target.value;
     setUsername(newUsername);
-    // Si cambió el usuario, resetear el preview para mostrar el botón "Generar"
     if (newUsername.trim() !== lastGeneratedUser) {
-      // No resetear preview completamente, solo marcar como desactualizado
     }
   };
 
-  // Verificar si el usuario actual coincide con el último generado
   const isUpToDate = username.trim() === lastGeneratedUser && preview;
 
   return (
